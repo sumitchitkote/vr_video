@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import Navbar from './components/Navbar/Navbar';
 import { AppBar, Button } from '@mui/material';
 import { useRef, useState } from 'react';
+import axios from 'axios';
 function App() {
   // const texture = useVideoTexture("vr.mp4")
   const [cameraPosition, setCameraPosition] = useState([0, 3, 6.8])
@@ -23,6 +24,32 @@ function App() {
     }
   };
 
+  const publishData = async () => {
+    try {
+      if (screenshotData) {
+        const response = await axios.post("https://chat.openai.com/", { screenshotData }, {
+          headers: {
+            'Content-Type': 'application/json', // Specify the content type
+          },
+        });
+  
+        if (response.status === 200) {
+          // Handle a successful response, if needed
+          console.log("Data published successfully");
+        } else {
+          // Handle other response status codes, if needed
+          console.error("Failed to publish data");
+        }
+      } else {
+        console.error("No screenshot data to publish");
+      }
+    } catch (error) {
+      // Handle network or other errors
+      console.error("An error occurred while publishing data", error);
+    }
+  };
+  
+
   return (
     <>
        <Canvas gl={{preserveDrawingBuffer:true}} style={{ position: 'absolute' }} ref={canvasRef}>
@@ -39,10 +66,11 @@ function App() {
              </Sphere>
       </Canvas>
       <AppBar position="fixed"  sx={{ top: 'auto', bottom: 0, backgroundColor:"rgba(0,0,0,0.5)", }}>
-                <Button sx={{color:"#fff"}} onClick={()=>{handleClick([2,2,2])}} >Left</Button>
-                <Button sx={{color:"#fff"}} onClick={()=>{handleClick([2,2,20])}} >Right</Button>
-                <Button sx={{color:"#fff"}} onClick={()=>{handleClick([2,1,2])}} >Down</Button>
+                <Button sx={{color:"#fff"}} onClick={()=>{handleClick([2,0,2])}} >Left</Button>
+                <Button sx={{color:"#fff"}} onClick={()=>{handleClick([2,4,2])}} >Right</Button>
+                <Button sx={{color:"#fff"}} onClick={()=>{handleClick([0,1,2])}} >Down</Button>
                 <Button sx={{ color: '#fff' }} onClick={captureScreenshot}>Capture Screenshot</Button>
+                <Button sx={{ color: '#fff' }} onClick={publishData}>Publish Data</Button>
              </AppBar>
 
              {screenshotData && (
