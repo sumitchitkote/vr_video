@@ -4,13 +4,14 @@ import { Box, CameraControls, Environment, Image, OrbitControls, PerspectiveCame
 import * as THREE from 'three';
 import Navbar from './components/Navbar/Navbar';
 import { AppBar, Button } from '@mui/material';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 function App() {
   const { DEG2RAD } = THREE.MathUtils
   // const texture = useVideoTexture("vr.mp4")
-  const [cameraPosition, setCameraPosition] = useState([0, 0, 0])
+  const [cameraPosition, setCameraPosition] = useState([0, 0, 0.1])
   const [cameraRotation, setCameraRotation] = useState([0, 30, 90]); // Set initial rotation
+  const [videoState, setVideoState] = useState(true); // Set initial rotation
 
 
   const [screenshotData, setScreenshotData] = useState(null);
@@ -19,7 +20,18 @@ function App() {
   const cubeRef = useRef(null);
   const handleClick = (direction) => {
     // setCameraRotation([THREE.MathUtils.degToRad(direction[0]), THREE.MathUtils.degToRad(direction[1]), THREE.MathUtils.degToRad(direction[2])]);
-    cubeRef.current.rotate(direction * DEG2RAD, 0, true)
+    if(direction === "left"){
+      cubeRef.current.rotate(60 * DEG2RAD, 0, true)
+    }else if (direction === "right"){
+      cubeRef.current.rotate(-60 * DEG2RAD, 0, true)
+      
+    }else if (direction === "up"){
+      cubeRef.current.rotate(0,180 * DEG2RAD, true)
+      
+    }else if (direction === "down"){
+      cubeRef.current.rotate(0,-180 * DEG2RAD, true)
+
+    }
     console.log(cubeRef.current);
   }
 
@@ -29,6 +41,9 @@ function App() {
       setScreenshotData(screenshot);
     }
   };
+  const nextFrame = (sec) => {
+    setVideoState(sec)
+  }
 
   const publishData = async () => {
     try {
@@ -54,30 +69,53 @@ function App() {
       console.error("An error occurred while publishing data", error);
     }
   };
-  
+  const downloadScreenshot = () => {
+    if (screenshotData) {
+      // Create a data URL for the screenshot
+      const dataUrl = screenshotData;
+
+      // Create an anchor element to trigger the download
+      const a = document.createElement('a');
+      a.href = dataUrl;
+      a.download = 'screenshot.png'; // You can change the filename as needed
+      a.style.display = 'none';
+
+      // Append the anchor element to the DOM and trigger the click event
+      document.body.appendChild(a);
+      a.click();
+
+      // Remove the anchor element from the DOM
+      document.body.removeChild(a);
+    } else {
+      console.error('No screenshot data to download');
+    }
+  };
 
   return (
     <>
-       <Canvas gl={{preserveDrawingBuffer:true}} style={{ position: 'absolute' }} ref={canvasRef}>
+       <Canvas gl={{preserveDrawingBuffer:true}} style={{ position: 'absolute', height:"800px", width:"800px" }} ref={canvasRef}>
         {/* <Environment
                 files={"jpegsystems-home.jpg"}
                 ground={{ height: 9, radius: 150, scale: 1 }}
               /> */}
-              <PerspectiveCamera makeDefault args={[120]} rotation={cameraRotation} position={cameraPosition}  />
+              <PerspectiveCamera makeDefault args={[60]} rotation={cameraRotation} position={cameraPosition}  />
               {/* <ScrollControls pages={2} damping={0.1}> */}
           <ambientLight args={["#fff", 0.5]} />
           <OrbitControls />
           <Sphere  scale={7} >
-          <VideoMaterial url="vr.mp4" />
+          <VideoMaterial  url="vr2.mp4" videoState={videoState} />
              </Sphere>
              <CameraControls ref={cubeRef} enabled={true} />
       </Canvas>
       <AppBar position="fixed"  sx={{ top: 'auto', bottom: 0, backgroundColor:"rgba(0,0,0,0.5)", }}>
-                <Button sx={{color:"#fff"}} onClick={()=>{handleClick(90)}} >Left</Button>
-                <Button sx={{color:"#fff"}} onClick={()=>{handleClick(-90)}} >Right</Button>
-                <Button sx={{color:"#fff"}} onClick={()=>{handleClick([0,1,2])}} >Down</Button>
+                <Button sx={{color:"#fff"}} onClick={()=>{handleClick("left")}} >Left</Button>
+                <Button sx={{color:"#fff"}} onClick={()=>{handleClick("right")}} >Right</Button>
+                <Button sx={{color:"#fff"}} onClick={()=>{handleClick("down")}} >Down</Button>
+                <Button sx={{color:"#fff"}} onClick={()=>{handleClick("up")}} >Up</Button>
                 <Button sx={{ color: '#fff' }} onClick={captureScreenshot}>Capture Screenshot</Button>
                 <Button sx={{ color: '#fff' }} onClick={publishData}>Publish Data</Button>
+                <Button sx={{ color: '#fff' }} onClick={()=>{nextFrame(!videoState)}}>Play/Pause</Button>
+                <Button sx={{ color: '#fff' }} onClick={downloadScreenshot}>Download Screenshot</Button>
              </AppBar>
 
              {screenshotData && (
@@ -89,8 +127,16 @@ function App() {
   )
 }
 
-function VideoMaterial({ url }) {
+function VideoMaterial({ url, videoState }) {
+  // const [newVideoState, setNewVideoState] = useState(videoState)
   const texture = useVideoTexture(url)
+  const videoRef = useRef()
+  useEffect(()=>{
+    // texture.pause()
+    console.log(texture);
+    // useVideoTexture.length
+    
+  },[videoState])
   return <meshBasicMaterial map={texture} toneMapped={false} side={THREE.BackSide} />
 }
 
