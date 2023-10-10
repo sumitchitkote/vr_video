@@ -27,32 +27,28 @@ function App() {
   const canvasRef = useRef(null);
   const cubeRef = useRef(null);
 
-  const captureScreenshotWithDelay = (count) => {
+  const captureScreenshotWithDelay = (count,frameNumber) => {
     const directions = ["front","front-left", "left", "back", "right", "front-right", "up", "down"];
     if (count < 6) {
-      const direction = directions[count];
+      const direction = directions[count] + "_" + frameNumber;
       cubeRef.current.rotate(60 * DEG2RAD, 0);
-      // if(direction === "up"){
-      //   cubeRef.current.rotate(0,180 * DEG2RAD)
-      // }else if (direction === "down"){
-      //   cubeRef.current.rotate(0,-180 * DEG2RAD)
-      // }else if (direction === "front") {
-      //   // cubeRef.current.rotate(60 * DEG2RAD, 0);
-      // }else {
-      // }
       const screenshot = canvasRef.current.toDataURL("image/png");
       // Call downloadScreenshot function here with 'screenshot' and 'direction'
       downloadScreenshot(screenshot,direction)
-      console.log("direction" , direction);
+      console.log("frameNumber" , frameNumber);
       setTimeout(() => {
-        captureScreenshotWithDelay(count + 1);
+        captureScreenshotWithDelay(count + 1,frameNumber);
       }, 500); // 500 milliseconds delay
     }
   };
 
         const captureScreenshot = () => {
           if (canvasRef.current) {
-            captureScreenshotWithDelay(0); // Start with count 0
+            const frameNum = 0
+            captureScreenshotWithDelay(0,frameNum); // Start with count 0
+            setTimeout(() => {
+              captureScreenshotWithDelay(0 ,Number(frameNum) + 1);
+            }, 5000); 
           }
         };
 
