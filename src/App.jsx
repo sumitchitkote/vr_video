@@ -29,7 +29,7 @@ function App() {
 
   const captureScreenshotWithDelay = (count,frameNumber) => {
     const directions = ["front","front-left", "left", "back", "right", "front-right", "up", "down"];
-    if (count < 6) {
+    if (count < 8) {
       const direction = directions[count] + "_" + frameNumber;
       cubeRef.current.rotate(60 * DEG2RAD, 0);
       const screenshot = canvasRef.current.toDataURL("image/png");
@@ -152,6 +152,9 @@ function App() {
       }
 function VideoMaterial({ url }) {
   const texture = useVideoTexture(url, { unsuspend: "loadedmetadata" });
+   // Apply a scale transformation to correct the mirroring
+   texture.wrapS = THREE.RepeatWrapping;
+   texture.repeat.x = -1; // Flip horizontally
   useEffect(() => {
     console.log(texture);
   }, []);
