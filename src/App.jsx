@@ -1,7 +1,6 @@
 import { Canvas, useThree } from "@react-three/fiber";
 import "./App.css";
 import {
-  Box,
   CameraControls,
   Environment,
   Image,
@@ -13,7 +12,7 @@ import {
 } from "@react-three/drei";
 import * as THREE from "three";
 import Navbar from "./components/Navbar/Navbar";
-import { AppBar, Button } from "@mui/material";
+import { AppBar, Box, Button, Input } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 function App() {
@@ -24,12 +23,13 @@ function App() {
   // const [videoState, setVideoState] = useState(true); // Set initial rotation
 
   const [screenshotData, setScreenshotData] = useState(null);
+  const [inputValue, setInputValue] = useState();
   const canvasRef = useRef(null);
   const cubeRef = useRef(null);
 
   const captureScreenshotWithDelay = (count,frameNumber) => {
-    const directions = ["front","front-left", "left", "back", "right", "front-right", "up", "down"];
-    if (count < 8) {
+    const directions = ["dummy","front","front-left", "left", "back", "right", "front-right","dummy", "up", "down"];
+    if (count < 6) {
       const direction = directions[count] + "_" + frameNumber;
       cubeRef.current.rotate(60 * DEG2RAD, 0);
       const screenshot = canvasRef.current.toDataURL("image/png");
@@ -40,16 +40,30 @@ function App() {
         captureScreenshotWithDelay(count + 1,frameNumber);
       }, 500); // 500 milliseconds delay
     }
+    if(count >=6 && count < 8){
+      const direction = directions[count] + "_" + frameNumber;
+      cubeRef.current.rotate(0,180 * DEG2RAD)
+      const screenshot = canvasRef.current.toDataURL("image/png");
+      // Call downloadScreenshot function here with 'screenshot' and 'direction'
+      downloadScreenshot(screenshot,direction)
+      console.log("frameNumber" , frameNumber);
+      setTimeout(() => {
+        cubeRef.current.rotate(0, 0)
+        captureScreenshotWithDelay(count + 1,frameNumber);
+      }, 500); // 500 milliseconds delay
+    }
   };
 
         const captureScreenshot = () => {
-          if (canvasRef.current) {
-            const frameNum = 0
-            captureScreenshotWithDelay(0,frameNum); // Start with count 0
-            setTimeout(() => {
-              captureScreenshotWithDelay(0 ,Number(frameNum) + 1);
-            }, 5000); 
-          }
+          if (canvasRef.current && inputValue) {
+            for(let i=0;i<=inputValue;i++){
+
+              captureScreenshotWithDelay(0,i); // Start with count 0
+              setTimeout(() => {
+                captureScreenshotWithDelay(0 ,Number(i) + 1);
+              }, 5000); 
+            }
+            }
         };
 
         // const nextFrame = (sec) => {
@@ -129,6 +143,14 @@ function App() {
                 backgroundColor: "rgba(0,0,0,0.5)",
               }}
             >
+              <Box sx={{textAlign:"center"}}>
+              <Input
+          placeholder="Enter something..."
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          sx={{ color: "#fff", marginRight: "16px" }}
+          />
+          </Box>
               <Button sx={{ color: "#fff" }} onClick={captureScreenshot}>
                 Capture & Download Screenshot
               </Button>
