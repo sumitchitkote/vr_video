@@ -26,42 +26,43 @@ function App() {
   const [inputValue, setInputValue] = useState();
   const canvasRef = useRef(null);
   const cubeRef = useRef(null);
+  const cubeRef2 = useRef(null);
 
   const captureScreenshotWithDelay = (count,frameNumber) => {
-    const directions = ["dummy","front","front-left", "left", "back", "right", "front-right","dummy", "up", "down"];
-    if (count < 6) {
-      const direction = directions[count] + "_" + frameNumber;
-      cubeRef.current.rotate(60 * DEG2RAD, 0);
-      const screenshot = canvasRef.current.toDataURL("image/png");
-      // Call downloadScreenshot function here with 'screenshot' and 'direction'
-      downloadScreenshot(screenshot,direction)
-      console.log("frameNumber" , frameNumber);
-      setTimeout(() => {
-        captureScreenshotWithDelay(count + 1,frameNumber);
-      }, 500); // 500 milliseconds delay
-    }
-    if(count >=6 && count < 8){
-      const direction = directions[count] + "_" + frameNumber;
-      cubeRef.current.rotate(0,180 * DEG2RAD)
-      const screenshot = canvasRef.current.toDataURL("image/png");
-      // Call downloadScreenshot function here with 'screenshot' and 'direction'
-      downloadScreenshot(screenshot,direction)
-      console.log("frameNumber" , frameNumber);
-      setTimeout(() => {
-        cubeRef.current.rotate(0, 0)
-        captureScreenshotWithDelay(count + 1,frameNumber);
-      }, 500); // 500 milliseconds delay
-    }
+    // const directions = ["dummy","front","front-left", "left", "back", "right", "front-right","dummy", "up", "down"];
+    // if (count < 6) {
+    //   const direction = directions[count] + "_" + frameNumber;
+    //   cubeRef.current.rotate(60 * DEG2RAD, 0);
+    //   const screenshot = canvasRef.current.toDataURL("image/png");
+    //   // Call downloadScreenshot function here with 'screenshot' and 'direction'
+    //   downloadScreenshot(screenshot,direction)
+    //   console.log("frameNumber" , frameNumber);
+    //   setTimeout(() => {
+    //     captureScreenshotWithDelay(count + 1,frameNumber);
+    //   }, 500); // 500 milliseconds delay
+    // }
+    // if(count >=6 && count < 8){
+    //   const direction = directions[count] + "_" + frameNumber;
+    //   cubeRef.current.rotate(0,180 * DEG2RAD)
+    //   const screenshot = canvasRef.current.toDataURL("image/png");
+    //   // Call downloadScreenshot function here with 'screenshot' and 'direction'
+    //   downloadScreenshot(screenshot,direction)
+    //   console.log("frameNumber" , frameNumber);
+    //   setTimeout(() => {
+    //     cubeRef.current.rotate(0, 0)
+    //     captureScreenshotWithDelay(count + 1,frameNumber);
+    //   }, 500); // 500 milliseconds delay
+    // }
   };
 
         const captureScreenshot = () => {
           if (canvasRef.current && inputValue) {
             for(let i=0;i<=inputValue;i++){
 
-              captureScreenshotWithDelay(0,i); // Start with count 0
-              setTimeout(() => {
-                captureScreenshotWithDelay(0 ,Number(i) + 1);
-              }, 5000); 
+              // captureScreenshotWithDelay(0,i); // Start with count 0
+              // setTimeout(() => {
+              //   captureScreenshotWithDelay(0 ,Number(i) + 1);
+              // }, 5000); 
             }
             }
         };
@@ -116,11 +117,18 @@ function App() {
           }
         };
 
+        useEffect(()=>{
+           setTimeout(() => {
+                // captureScreenshotWithDelay(0 ,Number(i) + 1);
+                cubeRef2.current.rotate(60 * DEG2RAD, 0);
+              }, 500); 
+        },[])
+
         return (
           <>
             <Canvas
               gl={{ preserveDrawingBuffer: true }}
-              style={{ position: "absolute", height: "800px", width: "800px" }}
+              style={{ position: "relative", height: "800px", width: "800px" }}
               ref={canvasRef}
             >
               <PerspectiveCamera
@@ -134,6 +142,23 @@ function App() {
                 <VideoMaterial url="vr2.mp4" />
               </Sphere>
               <CameraControls ref={cubeRef} enabled={true} />
+            </Canvas>
+            <Canvas
+              gl={{ preserveDrawingBuffer: true }}
+              style={{ position: "relative", height: "800px", width: "800px" }}
+              ref={canvasRef}
+            >
+              <PerspectiveCamera
+                makeDefault
+                args={[60]}
+                position={cameraPosition}
+              />
+              <ambientLight args={["#fff", 0.5]} />
+              <OrbitControls />
+              <Sphere scale={7}>
+                <VideoMaterial url="vr2.mp4" />
+              </Sphere>
+              <CameraControls ref={cubeRef2} enabled={true} />
             </Canvas>
             <AppBar
               position="fixed"
