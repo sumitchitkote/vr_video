@@ -25,20 +25,23 @@ function App() {
   const [screenshotData, setScreenshotData] = useState(null);
   const [inputValue, setInputValue] = useState();
   const canvasRef = useRef(null);
+  const canvasRef2 = useRef(null);
   const cubeRef = useRef(null);
   const cubeRef2 = useRef(null);
 
-  const captureScreenshotWithDelay = (count,frameNumber) => {
-    // const directions = ["dummy","front","front-left", "left", "back", "right", "front-right","dummy", "up", "down"];
+  const captureAllScreenshot = (count,frameNumber) => {
+    const directions = ["front","front-left", "left", "back", "right", "front-right", "up", "down"];
+      const direction = directions[count] + "_" + frameNumber;
+        const screenshot = canvasRef.current.toDataURL("image/png");
+        const screenshot1 = canvasRef2.current.toDataURL("image/png");
+          downloadScreenshot(screenshot,direction)
+          downloadScreenshot(screenshot1,direction)
     // if (count < 6) {
-    //   const direction = directions[count] + "_" + frameNumber;
     //   cubeRef.current.rotate(60 * DEG2RAD, 0);
-    //   const screenshot = canvasRef.current.toDataURL("image/png");
     //   // Call downloadScreenshot function here with 'screenshot' and 'direction'
-    //   downloadScreenshot(screenshot,direction)
     //   console.log("frameNumber" , frameNumber);
     //   setTimeout(() => {
-    //     captureScreenshotWithDelay(count + 1,frameNumber);
+    //     captureAllScreenshot(count + 1,frameNumber);
     //   }, 500); // 500 milliseconds delay
     // }
     // if(count >=6 && count < 8){
@@ -50,19 +53,19 @@ function App() {
     //   console.log("frameNumber" , frameNumber);
     //   setTimeout(() => {
     //     cubeRef.current.rotate(0, 0)
-    //     captureScreenshotWithDelay(count + 1,frameNumber);
+    //     captureAllScreenshot(count + 1,frameNumber);
     //   }, 500); // 500 milliseconds delay
     // }
   };
 
         const captureScreenshot = () => {
           if (canvasRef.current && inputValue) {
-            for(let i=0;i<=inputValue;i++){
+            for(let i=0;i<inputValue;i++){
 
-              // captureScreenshotWithDelay(0,i); // Start with count 0
-              // setTimeout(() => {
-              //   captureScreenshotWithDelay(0 ,Number(i) + 1);
-              // }, 5000); 
+              captureAllScreenshot(0,i); // Start with count 0
+              setTimeout(() => {
+                captureAllScreenshot(0 ,Number(i) + 1);
+              }, 5000); 
             }
             }
         };
@@ -119,7 +122,7 @@ function App() {
 
         useEffect(()=>{
            setTimeout(() => {
-                // captureScreenshotWithDelay(0 ,Number(i) + 1);
+                // captureAllScreenshot(0 ,Number(i) + 1);
                 cubeRef2.current.rotate(60 * DEG2RAD, 0);
               }, 500); 
         },[])
@@ -146,7 +149,7 @@ function App() {
             <Canvas
               gl={{ preserveDrawingBuffer: true }}
               style={{ position: "relative", height: "800px", width: "800px" }}
-              ref={canvasRef}
+              ref={canvasRef2}
             >
               <PerspectiveCamera
                 makeDefault
